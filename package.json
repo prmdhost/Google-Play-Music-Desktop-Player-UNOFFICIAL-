@@ -70,6 +70,7 @@
     "gmusic.js": "^6.1.4",
     "html-entities": "^1.2.0",
     "jquery": "^2.2.4",
+    "jsdom": "^13.2.0",
     "lastfm": "^0.9.2",
     "listenbrainz": "^1.0.4",
     "lodash": "^4.12.0",

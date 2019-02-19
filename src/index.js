@@ -74,6 +74,14 @@ app.setAppUserModelId('com.marshallofsound.gpmdp.core');
 
   Logger.info('Application started.');
 
+  // set ca-file
+  if (process.argv.some(arg => arg === '--cafile')) {
+    process.env.NODE_EXTRA_CA_CERTS = process.argv[process.argv.findIndex(arg => arg === '--cafile') + 1];
+    Logger.info('Set additional CA certs ', process.env.NODE_EXTRA_CA_CERTS);
+  }
+
+  global.requestClearance = false;
+
   configureApp(app);
 
   global.Emitter = new EmitterClass();
@@ -121,6 +129,48 @@ app.setAppUserModelId('com.marshallofsound.gpmdp.core');
     if (Settings.get('maximized', false)) {
       mainWindow.maximize();
     }
+
+    const https = require('https');
+    if (process.env.NODE_EXTRA_CA_CERTS) {
+      const fs = require('fs');
+      https.globalAgent.options.ca = fs.readFileSync(process.env.NODE_EXTRA_CA_CERTS);
+    }
+    const jsdom = require('jsdom');
+    const { JSDOM } = jsdom;
+    const { session } = require('electron');
+    session.defaultSession.webRequest.onHeadersReceived({ urls: ['https://*.googleusercontent.com/videoplayback*'] }, (details, callback) => {
+      const headers = details.responseHeaders;
+      if (headers['Content-type'] && headers['Content-type'].some((val) => val === 'text/html')) {
+        // should be stream - request firewall
+
+        if (!global.requestClearance) {
+          global.requestClearance = true;
+          Logger.info('try to get firewall clearance');
+          https.get(details.url, (resp) => {
+            let data = '';
+
+            // A chunk of data has been recieved.
+            resp.on('data', (chunk) => {
+              data += chunk;
+            });
+            resp.on('end', () => {
+              const dom = new JSDOM(data);
+              const call = dom.window.document.querySelector('.actions > button').getAttribute('onclick');
+              const uri = call.substring(call.indexOf('=') + 1);
+              // eslint-disable-next-line no-eval
+              https.get(eval(uri))
+                  .on('close', () => {
+                    global.requestClearance = false;
+                  });
+            });
+          }).on('error', (err) => {
+            Logger.error('Firewall clearance error', err.message);
+            global.requestClearance = false;
+          });
+        }
+      }
+      callback({});
+    });
 
     // and load the index.html of the app.
     mainWindow.loadURL(`file://${__dirname}/public_html/index.html`);
