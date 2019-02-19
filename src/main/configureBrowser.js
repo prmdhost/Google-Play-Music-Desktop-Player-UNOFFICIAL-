@@ -22,6 +22,7 @@ export default () => {
     title: 'Google Play Music Desktop Player',
     webPreferences: {
       nodeIntegration: true,
+      webSecurity: false,
       preload: path.resolve(`${__dirname}/../renderer/generic/index.js`),
     },
   };
