@@ -1,3 +1,4 @@
+/* eslint-disable dot-notation */
 import { app, BrowserWindow } from 'electron';
 import path from 'path';
 import ua from 'universal-analytics';
@@ -76,8 +77,8 @@ app.setAppUserModelId('com.marshallofsound.gpmdp.core');
 
   // set ca-file
   if (process.argv.some(arg => arg === '--cafile')) {
-    process.env.NODE_EXTRA_CA_CERTS = process.argv[process.argv.findIndex(arg => arg === '--cafile') + 1];
-    Logger.info('Set additional CA certs ', process.env.NODE_EXTRA_CA_CERTS);
+    process.env['NODE_EXTRA_CA_CERTS'] = process.argv[process.argv.findIndex(arg => arg === '--cafile') + 1];
+    Logger.info('Set additional CA certs ', process.env['NODE_EXTRA_CA_CERTS']);
   }
 
   global.requestClearance = false;
@@ -131,14 +132,14 @@ app.setAppUserModelId('com.marshallofsound.gpmdp.core');
     }
 
     const https = require('https');
-    if (process.env.NODE_EXTRA_CA_CERTS) {
+    if (process.env['NODE_EXTRA_CA_CERTS']) {
       const fs = require('fs');
-      https.globalAgent.options.ca = fs.readFileSync(process.env.NODE_EXTRA_CA_CERTS);
+      https.globalAgent.options.ca = fs.readFileSync(process.env['NODE_EXTRA_CA_CERTS']);
     }
     const jsdom = require('jsdom');
     const { JSDOM } = jsdom;
     const { session } = require('electron');
-    session.defaultSession.webRequest.onHeadersReceived({ urls: ['https://*.googleusercontent.com/videoplayback*'] }, (details, callback) => {
+    session.defaultSession.webRequest.onHeadersReceived({ urls: ['http*://*.googleusercontent.*/*'] }, (details, callback) => {
       const headers = details.responseHeaders;
       if (headers['Content-type'] && headers['Content-type'].some((val) => val === 'text/html')) {
         // should be stream - request firewall
@@ -160,6 +161,7 @@ app.setAppUserModelId('com.marshallofsound.gpmdp.core');
               // eslint-disable-next-line no-eval
               https.get(eval(uri))
                   .on('close', () => {
+                    Logger.info('Requests are allowed to go');
                     global.requestClearance = false;
                   });
             });
