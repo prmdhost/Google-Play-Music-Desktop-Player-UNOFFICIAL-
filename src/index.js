@@ -156,14 +156,19 @@ app.setAppUserModelId('com.marshallofsound.gpmdp.core');
             });
             resp.on('end', () => {
               const dom = new JSDOM(data);
-              const call = dom.window.document.querySelector('.actions > button').getAttribute('onclick');
-              const uri = call.substring(call.indexOf('=') + 1);
-              // eslint-disable-next-line no-eval
-              https.get(eval(uri))
+              const button = dom.window.document.querySelector('.actions > button');
+              if (button) {
+                const call = button.getAttribute('onclick');
+                const uri = call.substring(call.indexOf('=') + 1);
+                // eslint-disable-next-line no-eval
+                https.get(eval(uri))
                   .on('close', () => {
                     Logger.info('Requests are allowed to go');
                     global.requestClearance = false;
                   });
+              } else {
+                global.requestClearance = false;
+              }
             });
           }).on('error', (err) => {
             Logger.error('Firewall clearance error', err.message);
