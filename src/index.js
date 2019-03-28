@@ -31,7 +31,8 @@ app.setAppUserModelId('com.marshallofsound.gpmdp.core');
   let mainWindow = null;
 
   // DEV: Make the app single instance
-  const shouldQuit = app.makeSingleInstance(() => {
+  const gotLock = app.requestSingleInstanceLock();
+  app.on('second-instance', () => {
     if (mainWindow) {
       if (mainWindow.isMinimized()) mainWindow.restore();
       mainWindow.focus();
@@ -41,7 +42,7 @@ app.setAppUserModelId('com.marshallofsound.gpmdp.core');
     }
   });
 
-  if (shouldQuit) {
+  if (!gotLock) {
     app.quit();
     return;
   }
