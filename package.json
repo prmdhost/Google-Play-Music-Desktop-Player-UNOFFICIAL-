@@ -91,7 +91,7 @@
     "winston": "^2.2.0",
     "ws": "^1.1.0",
     "xss": "^0.2.13",
-    "ytmusic.js": "6.1.12"
+    "ytmusic.js": "^6.1.15"
   },
   "devDependencies": {
     "babel-eslint": "^6.1.2",
@@ -161,13 +161,13 @@
     "@nodert-win10/windows.media.playback": "^0.2.95",
     "@nodert-win10/windows.storage.streams": "^0.2.95",
     "appdmg": "^0.4.5",
-    "dbus": "GPMDP/node-dbus#linux-only",
+    "dbus-next": "^0.7.1",
     "electron-installer-debian": "^0.4.0",
     "electron-installer-redhat": "^0.3.0",
     "electron-media-service": "^0.2.2",
     "ll-keyboard-hook-win": "^3.0.0",
     "mouse-forward-back": "^1.0.1",
-    "mpris-service": "^2.0.0"
+    "mpris-service": "^2.1.0"
   },
   "babel": {
     "presets": [
